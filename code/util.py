@@ -30,6 +30,9 @@ def Make_Default_FSPSparams():
 
     # load default parameters
     default_params = dict([(k, pop.params[k]) for k in pop.params.all_params])
+    default_params['sfh'] = 1
+    default_params['dust_type'] = 2
+    default_params['add_neb_emission'] = True
 
     # save to pickle file 
     pickle_file = ''.join([Dir('dat'), 'default_FSPSparams.p' ]) 

@@ -15,6 +15,11 @@ from ChangTools.plotting import prettyplot
 from ChangTools.plotting import prettycolors
 
 
+def test_iSEDfit():
+    ''' Condensing fsps_galrecon.ipynb and spectra.ipynb into a small self contained test. 
+    '''
+
+
 
 def test_FSPSgalaxy(): 
     ''' Test FSPS galaxy model by comparing it to iSEDfit derived galaxy properties. 
@@ -64,4 +69,5 @@ def test_FSPSgalaxy():
 
 
 if __name__=='__main__': 
-    test_FSPSgalaxy()
+    test_iSEDfit()
+    #test_FSPSgalaxy()
