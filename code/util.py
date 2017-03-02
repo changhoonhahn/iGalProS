@@ -12,6 +12,8 @@ def Dir(folder):
         return os.path.dirname(os.path.realpath(__file__))
     elif folder == 'dat': 
         return os.path.dirname(os.path.realpath(__file__)).split('code')[0]+'dat/'
+    elif folder == 'local': # ../local, which is symlinked to a local path that contains big data
+        return os.path.dirname(os.path.realpath(__file__)).split('code')[0]+'local/iGalPros/'
 
 
 def Default_FSPSparams(): 

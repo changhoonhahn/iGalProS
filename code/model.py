@@ -12,10 +12,10 @@ Author(s): ChangHoon Hahn
 import fsps
 import numpy as np 
 from sedpy.observate import getSED
+from sedpy.observate import load_filters
 from astropy.cosmology import FlatLambdaCDM
 
 import util as UT
-
 
 
 class FSPSgalaxy(object): 
@@ -44,13 +44,15 @@ class FSPSgalaxy(object):
     def _getSpectrum_iSEDfit(self, iseddict, units='cgs'): 
         ''' Given iSEDfit derived galaxy property dictionary, output galaxy spectra
         '''
-        assert set(iseddict.__dict__.keys()).issuperset(set(['tau', 'av', 'mu', 'age' 'mstar'])
+        assert set(iseddict.keys()).issuperset(set(['tau', 'av', 'mu', 'age', 'mstar', 'zmetal']))
 
         self.pop.params['sfh'] = 1
         self.pop.params['tau'] = iseddict['tau']
 
         self.pop.params['dust_type'] = 2 
         self.pop.params['dust2'] = 0.92 * iseddict['av'] * iseddict['mu'] # ln(10) * 0.4 * A(V)
+
+        self.pop.params['logzsol'] = np.log10(iseddict['zmetal']/0.019)
 
         self.pop.params['add_neb_emission'] = True
         self.pop.params['add_neb_continuum'] = True
@@ -63,26 +65,31 @@ class FSPSgalaxy(object):
 
         mass = 10**iseddict['mstar'] / self.pop.stellar_mass # stellar mass scaling 
         spec = mass * sp * a 
+    
+        d_lum = self.cosmo.luminosity_distance(iseddict['z']).value
+        d_factor = (d_lum * 1e5)**2
 
         if units == 'cgs': 
-            spec *= to_cgs / d_factor * lightspeed / wave**2 # in erg/s/cm^2/AA
+            spec *= self.to_cgs / d_factor * self.lightspeed / wave**2 # in erg/s/cm^2/AA
         elif units == 'ABmag': # AB magnitude (think twice before messing with units) 
-            spec = -2.5 * np.log10(spec * to_cgs / d_factor / 1e3 / (3631 * 1e-26))
+            spec = -2.5 * np.log10(spec * self.to_cgs / d_factor / 1e3 / (3631 * 1e-26))
         else: 
             raise NotImplementedError()
         
         return wave, spec 
 
-    def _getPhotometry_iSEDfit(self, iseddict, units='cgs'): 
+    def _getPhotometry_iSEDfit(self, iseddict): 
+        ''' Returns AB magnitude photometry
         '''
-        '''
-        assert set(iseddict.__dict__.keys()).issuperset(set(['tau', 'av', 'mu', 'age' 'mstar'])
+        assert set(iseddict.keys()).issuperset(set(['tau', 'av', 'mu', 'age', 'mstar', 'zmetal']))
 
         self.pop.params['sfh'] = 1
         self.pop.params['tau'] = iseddict['tau']
 
         self.pop.params['dust_type'] = 2 
         self.pop.params['dust2'] = 0.92 * iseddict['av'] * iseddict['mu'] # ln(10) * 0.4 * A(V)
+
+        self.pop.params['logzsol'] = np.log10(iseddict['zmetal']/0.019)
 
         self.pop.params['add_neb_emission'] = True
         self.pop.params['add_neb_continuum'] = True
@@ -94,7 +101,11 @@ class FSPSgalaxy(object):
         wave = w * a
 
         mass = 10**iseddict['mstar'] / self.pop.stellar_mass # stellar mass scaling 
-        spec = mass * sp * a * to_cgs / d_factor * lightspeed / wave**2 # in erg/s/cm^2/AA
+        
+        d_lum = self.cosmo.luminosity_distance(iseddict['z']).value
+        d_factor = (d_lum * 1e5)**2
+        
+        spec = mass * sp * a * self.to_cgs / d_factor * self.lightspeed / wave**2 # in erg/s/cm^2/AA
 
         return getSED(wave, spec, filterlist=load_filters(['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0']))
 
