@@ -28,7 +28,7 @@ def test_iSEDfit():
     # import iSEDfit data into convenient dictionaries 
     iSEDfit = mrdfits(UT.Dir('local')+'NSA_iSEDfit/nsa_v1_2_fsps_v2.4_miles_chab_charlot_sfhgrid01.fits.gz')
 
-    gal_ids = [53999, 18965] # hardcoded IDs of some randomly chosen galaxies 
+    gal_ids = [53999, 18965, 81806] # hardcoded IDs of some randomly chosen galaxies 
     
     iSED_gals = [{} for i in range(len(gal_ids))]
     for i, gal_dict in enumerate(iSED_gals): 
