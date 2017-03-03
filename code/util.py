@@ -2,8 +2,12 @@
 '''
 import os 
 import fsps
+import wget 
+import shutil
 import numpy as np 
 import pickle
+
+from ChangTools.fitstables import mrdfits
 
 
 def Dir(folder): 
@@ -40,3 +44,18 @@ def Make_Default_FSPSparams():
     pickle_file = ''.join([Dir('dat'), 'default_FSPSparams.p' ]) 
     pickle.dump(default_params, open(pickle_file, 'wb'))
     return None
+
+
+def GetSpectra_SDSS(mjd, plate, fiberid): 
+    ''' Get SDSS spectra given mjd, plate, and fiber ID
+    '''
+    spec_file = '-'.join(['spec', str(plate).zfill(4), str(mjd), str(fiberid).zfill(4)])+'.fits'
+    spec_dir = '../local/iGalProS/spectra/'
+    if not os.path.isfile(spec_dir+spec_file): 
+        print 'https://data.sdss.org/sas/dr8/sdss/spectro/redux/26/spectra/'+str(plate).zfill(4)+'/'+spec_file
+        wget.download('https://data.sdss.org/sas/dr8/sdss/spectro/redux/26/spectra/'+str(plate).zfill(4)+'/'+spec_file)
+
+        shutil.move(spec_file, spec_dir+spec_file) 
+
+    spectra = mrdfits(spec_dir+spec_file) 
+    return spectra 
